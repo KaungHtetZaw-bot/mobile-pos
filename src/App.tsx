@@ -33,7 +33,7 @@ export default function App() {
               <Route index element={<DashboardView />} />
               <Route path="pos" element={<POSTerminalView />} />
               <Route path="inventory" element={<InventoryView />} />
-              {/* <Route path="transactions" element={<TransactionsView />} /> */}
+              <Route path="transactions" element={<TransactionsView />} />
               {/* <Route path="admin" element={<AdminPanelView />} /> */}
             </Route>
           </Route>

@@ -16,11 +16,11 @@ import {
 } from 'lucide-react';
 import type { Product, CartItem, Transaction } from '../types';
 import { useI18n } from '../i18nContext';
-import { useGetProduct } from '../hooks/useProduct';
+import { useGetProductData } from '../hooks/useProduct';
 
 export const POSTerminalView= () => {
   const { t } = useI18n();
-  const {  data: { products:rawProducts, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProduct()
+  const {  data: { products:rawProducts, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProductData()
   const [selectedBrand, setSelectedBrand] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -123,7 +123,7 @@ export const POSTerminalView= () => {
     const dateStr = now.toISOString().split('T')[0];
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-    const newTx: Transaction = {
+    const newTx = {
       id: invoiceId,
       date: dateStr,
       time: timeStr,

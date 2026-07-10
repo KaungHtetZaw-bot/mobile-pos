@@ -19,9 +19,9 @@ import {
 } from 'lucide-react';
 import type{ Transaction, Product } from '../types';
 import { useI18n } from '../i18nContext';
+import { useTransations } from '../hooks/useProduct';
 
 interface TransactionsViewProps {
-  transactions: Transaction[];
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -30,7 +30,6 @@ interface TransactionsViewProps {
 }
 
 export const TransactionsView: React.FC<TransactionsViewProps> = ({
-  transactions,
   setTransactions,
   products,
   setProducts,
@@ -40,13 +39,13 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
-
+  const { data: transactions= [] } = useTransations()
   // Compute stats based on current list
   const stats = useMemo(() => {
-    const completed = transactions.filter(t => t.status === 'Completed');
-    const refunds = transactions.filter(t => t.status === 'Refunded');
+    const completed = transactions.filter((t:Transaction) => t.status === 'Completed');
+    const refunds = transactions.filter((t:Transaction) => t.status === 'Refunded');
     
-    const revenue = completed.reduce((sum, t) => sum + t.total, 0);
+    const revenue = completed.reduce((sum, t:Transaction) => sum + t.total, 0);
     const count = completed.length;
     const avgVal = count > 0 ? (revenue / count) : 0;
     
@@ -60,30 +59,37 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
 
   // Filters based on search query
   const filteredTransactions = useMemo(() => {
-    return transactions.filter(t => {
-      const matchesSearch = t.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            t.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            t.customerEmail.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesSearch;
-    });
-  }, [transactions, searchQuery]);
+  const newTransactions = transactions ?? [];
+  return newTransactions.filter((t: Transaction) => {
+    // Convert t.id to a string safely before calling string methods
+    const transactionId = String(t.id).toLowerCase();
+    const query = searchQuery.toLowerCase();
+
+    const matchesSearch = 
+      transactionId.includes(query) || 
+      t.customerName.toLowerCase().includes(query) || 
+      t.customerEmail.toLowerCase().includes(query);
+      
+    return matchesSearch;
+  });
+}, [transactions, searchQuery]);
 
   // Void/Refund transaction
   const handleVoidTransaction = (id: string) => {
-    const targetTx = transactions.find(t => t.id === id);
+    const targetTx = transactions.find((t:Transaction) => t.id === id);
     if (!targetTx) return;
 
     if (window.confirm(`Are you sure you want to VOID transaction ${id}? This will restore its stock in the inventory.`)) {
       // Restore product stock
-      setProducts(prevProducts => {
-        return prevProducts.map(p => {
-          const itemInTx = targetTx.items.find(i => i.product.id === p.id);
-          if (itemInTx) {
-            return { ...p, stock: p.stockQty + itemInTx.quantity };
-          }
-          return p;
-        });
-      });
+      // setProducts(prevProducts => {
+      //   return prevProducts.map(p => {
+      //     const itemInTx = targetTx.items.find((i:Transaction) => i..id === p.id);
+      //     if (itemInTx) {
+      //       return { ...p, stock: p.stockQty + itemInTx.quantity };
+      //     }
+      //     return p;
+      //   });
+      // });
 
       // Update transaction status to Refunded
       setTransactions(prev => 
@@ -131,7 +137,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded-lg text-xs placeholder-slate-400 font-semibold focus:ring-1 focus:ring-primary"
               />
             </div>
-            
+            <div className="flex gap-3 w-full sm:w-auto">
+              <button className="flex-1 sm:flex-none px-4 py-2.5 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-xs">
+                <Calendar className="w-4 h-4 text-slate-400" />
+                {t('dashboard.last24Hours')}
+              </button>
+            </div>
             <button 
               onClick={() => window.print()}
               className="px-3.5 py-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
@@ -184,7 +195,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredTransactions.map(tx => (
+                {filteredTransactions.map((tx:Transaction) => (
                   <tr
                     key={tx.id}
                     onClick={() => setSelectedTx(tx)}
@@ -192,11 +203,23 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                       selectedTx?.id === tx.id ? 'bg-primary/5 border-l-2 border-primary' : ''
                     }`}
                   >
-                    <td className="px-6 py-4 font-mono font-bold text-primary text-sm">{tx.id}</td>
+                    <td className="px-6 py-4 font-mono font-bold text-primary text-sm">#{tx.invoiceNo}</td>
                     
                     <td className="px-6 py-4">
-                      <p className="text-slate-800 text-xs font-semibold">{tx.date}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5 font-mono">{tx.time}</p>
+                      <p className="text-slate-800 text-xs font-semibold">
+                        {tx?.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        }) : "N/A"}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                        {tx?.createdAt ? new Date(tx.createdAt).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true
+                        }): "N/A"}
+                      </p>
                     </td>
 
                     <td className="px-6 py-4">

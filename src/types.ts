@@ -45,9 +45,8 @@ export interface CartItem {
 }
 
 export interface Transaction {
-  id: string;
-  date: string;
-  time: string;
+  id: string; // Or number, depending on your routing setup
+  invoiceNo: string;
   customerName: string;
   customerEmail: string;
   items: CartItem[];
@@ -55,6 +54,8 @@ export interface Transaction {
   tax: number;
   discount: number;
   total: number;
+  createdAt?: Date;
+  updatedAt?: Date;
   paymentMethod: 'Card' | 'Cash' | 'QR Pay' | 'KPay' | 'AYA Pay';
   status: 'Completed' | 'Pending' | 'Refunded';
 }

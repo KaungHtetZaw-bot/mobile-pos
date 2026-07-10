@@ -11,12 +11,12 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useI18n } from '../i18nContext';
-import { useGetProduct } from '../hooks/useProduct';
+import { useGetProductData } from '../hooks/useProduct';
 import type { Brand, Category, Product } from '../types';
 
 export const InventoryView= () => {
   const { t } = useI18n();
-  const {  data: { products:rawProducts, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProduct()
+  const {  data: { products:rawProducts, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProductData()
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [stockFilter, setStockFilter] = useState<'all' | 'instock' | 'low' | 'out'>('all');

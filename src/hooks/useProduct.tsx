@@ -41,3 +41,12 @@ export const useGetProductData = () => {
     },
   });
 };
+export const useTransations = () => {
+  return useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const res = await api.get('/orders')
+      return res.data;
+    },
+  });
+};
