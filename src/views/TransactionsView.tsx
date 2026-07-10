@@ -79,7 +79,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         return prevProducts.map(p => {
           const itemInTx = targetTx.items.find(i => i.product.id === p.id);
           if (itemInTx) {
-            return { ...p, stock: p.stock + itemInTx.quantity };
+            return { ...p, stock: p.stockQty + itemInTx.quantity };
           }
           return p;
         });
@@ -323,7 +323,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono block">{t('transactions.totalPurchased')}</span>
                   
                   <div className="divide-y divide-slate-100">
-                    {selectedTx.items.map(i => (
+                    {/* {selectedTx.items.map(i => (
                       <div key={i.product.id} className="py-2.5 flex justify-between text-xs">
                         <div>
                           <p className="font-bold text-slate-800">{i.product.name}</p>
@@ -338,7 +338,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                         </div>
                         <span className="font-bold text-slate-900 font-mono">${(i.product.price * i.quantity).toLocaleString()}</span>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 </div>
 
