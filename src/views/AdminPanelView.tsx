@@ -1,11 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { 
-  Lock, 
   RefreshCw, 
   Sliders, 
-  Building2, 
-  Users, 
+  Building2,
   HelpCircle,
   Database,
   CheckCircle,
@@ -25,7 +23,6 @@ interface AdminPanelViewProps {
 export const AdminPanelView: React.FC<AdminPanelViewProps> = ({
   products,
   setProducts,
-  transactions,
   setTransactions,
 }) => {
   const { t } = useI18n();

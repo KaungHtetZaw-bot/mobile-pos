@@ -18,7 +18,7 @@ export const my: Translations = {
   dashboard: {
     title: "ဒက်ရှ်ဘုတ် ခြုံငုံသုံးသပ်ချက်",
     todayStoreRevenue: "ယနေ့ အရောင်းရငွေစုစုပေါင်း",
-    monthlyProfit: "ခန့်မှန်းခြေ လစဉ်အမြတ် (45% GM)",
+    monthlyProfit: "ခန့်မှန်းခြေ လစဉ်အမြတ် ({margin} GM)",
     stockThresholds: "ကုန်ပစ္စည်းသိုလှောင်မှု အခြေအနေ",
     allHealthy: "သိုလှောင်မှု လုံလောက်ပါသည်",
     needsAction: "စစ်ဆေးရန်လိုအပ်သည်",
@@ -42,6 +42,7 @@ export const my: Translations = {
     title: "အရောင်းကောင်တာ",
     searchPlaceholder: "တံဆိပ်၊ အချက်အလက် သို့မဟုတ် အမျိုးအစား ရှာဖွေရန်...",
     allCategories: "အမျိုးအစားအားလုံး",
+    allBrands: "brand အားလုံး",
     imeiRequired: "IMEI / စီရီယယ်နံပါတ် လိုအပ်သည်",
     imeiPlaceholder: "IMEI နံပါတ် ရိုက်ထည့်ပါ...",
     addToCart: "ခြင်းတောင်းထဲထည့်ရန်",

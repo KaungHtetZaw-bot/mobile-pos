@@ -1,0 +1,37 @@
+import { useQuery } from "@tanstack/react-query";
+import api from "../axios/api";
+
+const getBrand = async () => {
+   const {data} = await api.get("/brands")
+   return data
+}
+const getCate = async () => {
+   const {data} = await api.get("/categories")
+   return data
+}
+const getProduct = async () => {
+   const {data} = await api.get("/products")
+   return data
+}
+
+export const useInitData = () => {
+  return useQuery({
+    queryKey: ["init-data"],
+    queryFn: async () => {
+      const response = await api.get("/dashboard-init-data" , 
+        { params: {
+          threshold: 5
+        }});
+      return response.data;
+    },
+  });
+};
+export const useGetProduct = () => {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const [brands, categories, products] = await Promise.all([getBrand(),getCate(),getProduct()])
+      return {brands,categories,products}
+    },
+  });
+};

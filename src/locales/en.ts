@@ -16,7 +16,7 @@ export const en = {
   dashboard: {
     title: "Dashboard Overview",
     todayStoreRevenue: "Today's Store Revenue",
-    monthlyProfit: "Monthly Profit (45% GM)",
+    monthlyProfit: "Monthly Profit ({margin} GM)",
     stockThresholds: "Stock Thresholds",
     allHealthy: "All Healthy",
     needsAction: "Needs Action",
@@ -40,6 +40,7 @@ export const en = {
     title: "POS Terminal",
     searchPlaceholder: "Search brand, specs, category...",
     allCategories: "All Categories",
+    allBrands: "All Brands",
     imeiRequired: "IMEI / Serial Required",
     imeiPlaceholder: "Enter IMEI number...",
     addToCart: "Add to Cart",

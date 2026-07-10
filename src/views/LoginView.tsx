@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Calculator, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useI18n } from '../i18nContext';
-
+import api from '../axios/api';
 export function LoginView() {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -14,52 +14,34 @@ export function LoginView() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    setIsLoading(true);
-
-    // Simulate slight lag for a realistic premium loading effect
-    setTimeout(() => {
+    try {
+      setError('');
+      setSuccess('');
+      setIsLoading(true);
       if (!email || !password) {
         setError('Please fill in all fields.');
         setIsLoading(false);
         return;
       }
 
-      // Retrieve registered users from localStorage
-      const savedUsers = localStorage.getItem('trp_users');
-      const users = savedUsers ? JSON.parse(savedUsers) : [
-        {
-          name: 'Alex Rivera',
-          email: 'manager@mobilepulse.com',
-          password: 'password123',
-          image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGqk-KEB4uJCWi5ry9wZR56s-IH4HGkJRa-AstffapKoMA2zoiirx4GFRy4KqLaaHzqFnPLRPSoBUc_L8nSYosp2ZnXvv2S6Q00icSLu4S_kaxo03OTNR3xOTeHtlSJFleg6BUm1u3pyLtz1T0pvl_N9YgpCxv3-SQsmwp3XVi8P4fJAFWDevF3soRrb6q5WR1nd2jSsuswUYsB3315VgY0A0hwOMfERR0EzDT0Y2fFxXn8BUpHLGXog'
-        }
-      ];
-
-      const foundUser = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
-
-      if (!foundUser) {
-        setError('No account found with this email.');
-        setIsLoading(false);
-        return;
-      }
-
-      if (foundUser.password !== password) {
-        setError('Incorrect password. Please try again.');
-        setIsLoading(false);
-        return;
-      }
-
-      setSuccess('Sign in successful! Loading workspace...');
-    }, 600);
+      const { data } = await api.post('/auth/login',{email, password})
+      localStorage.setItem("token", data?.token)
+      console.log(localStorage.getItem('token'))
+      localStorage.setItem("user", data?.user)
+      setSuccess(data.message)
+      navigate('/')
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   };
 
   const handleQuickFill = () => {
-    setEmail('manager@mobilepulse.com');
-    setPassword('password123');
+    setEmail('admin@mobilepos.com');
+    setPassword('123456');
     setError('');
   };
 
@@ -77,7 +59,7 @@ export function LoginView() {
               </div>
               <div>
                 <h1 className="text-base font-black tracking-tight font-sans leading-none">MobilePulse</h1>
-                <p className="text-[10px] text-sky-400 font-bold uppercase tracking-wider font-mono mt-0.5">Premium Hub</p>
+                {/* <p className="text-[10px] text-sky-400 font-bold uppercase tracking-wider font-mono mt-0.5">Premium Hub</p> */}
               </div>
             </div>
 
@@ -92,7 +74,7 @@ export function LoginView() {
             </div>
           </div>
 
-          <div className="relative z-10 mt-12 bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+          {/* <div className="relative z-10 mt-12 bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
             <p className="text-xs font-semibold text-slate-300 mb-3 font-mono uppercase tracking-wider flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Live Store Analytics
@@ -106,7 +88,7 @@ export function LoginView() {
                 +12.4% vs yesterday
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Glowing subtle nodes */}
           <div className="absolute -right-24 -top-24 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
@@ -213,7 +195,7 @@ export function LoginView() {
             <div className="mt-6 p-4 bg-slate-50 dark:bg-[#151f32] rounded-2xl border border-dashed border-slate-200 dark:border-slate-850 flex items-center justify-between">
               <div>
                 <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Quick Access Demo</span>
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">manager@mobilepulse.com</span>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">admin@mobilepos.com</span>
               </div>
               <button
                 type="button"

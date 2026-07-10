@@ -16,21 +16,12 @@ import {
 } from 'lucide-react';
 import type { Product, CartItem, Transaction } from '../types';
 import { useI18n } from '../i18nContext';
+import { useGetProduct } from '../hooks/useProduct';
 
-interface POSTerminalViewProps {
-  products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-  transactions: Transaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-}
-
-export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
-  products,
-  setProducts,
-  setTransactions,
-}) => {
+export const POSTerminalView= () => {
   const { t } = useI18n();
-  const [selectedBrand, setSelectedBrand] = useState<string>('All Brands');
+  const {  data: { products:rawProducts ={}, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProduct()
+  const [selectedBrand, setSelectedBrand] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [checkoutSuccess, setCheckoutSuccess] = useState<Transaction | null>(null);
@@ -43,29 +34,33 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
 
   // Brands extracted from product list
   const brands = useMemo(() => {
-    const list = new Set(products.map(p => p.brand));
-    return ['All Brands', ...Array.from(list)];
-  }, [products]);
+      const allBrands = { id: 0, name: "All Brands", status: "ACTIVE" }
+      const list = rawBrands ?? []
+      return [allBrands, ...list];
+    }, [rawBrands]);
 
-  // Categories for fast filtering or quick select
+
   const filteredProducts = useMemo(() => {
-    return products.filter(p => {
-      const matchesBrand = selectedBrand === 'All Brands' || p.brand === selectedBrand;
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            p.specs.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            p.brand.toLowerCase().includes(searchQuery.toLowerCase());
+      const products = rawProducts ?? [];
+  
+      return products.filter((p: Product) => {
+        const matchesBrand = Number(selectedBrand) === 0 || p.brandId === Number(selectedBrand);
+        
+        const matchesSearch = p.modelName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            p.spec?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            p.brand.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesBrand && matchesSearch;
-    });
-  }, [products, selectedBrand, searchQuery]);
+      });
+    }, [searchQuery, selectedBrand, rawProducts]);
 
   // Cart operations
   const addToCart = (product: Product) => {
-    if (product.stock === 0) return;
+    if (product.stockQty === 0) return;
 
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
-        if (existing.quantity >= product.stock) return prev; // Limit to stock
+        if (existing.quantity >= product.stockQty) return prev; // Limit to stock
         return prev.map(item => 
           item.product.id === product.id 
             ? { ...item, quantity: item.quantity + 1 } 
@@ -75,7 +70,7 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
       return [...prev, { 
         product, 
         quantity: 1, 
-        selectedImei: product.imeiRequired ? `IMEI: ${Math.floor(100000000000000 + Math.random() * 900000000000000)}` : undefined
+        // selectedImei: product.imeiRequired ? `IMEI: ${Math.floor(100000000000000 + Math.random() * 900000000000000)}` : undefined
       }];
     });
   };
@@ -83,11 +78,11 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
   const updateQuantity = (productId: string, delta: number) => {
     setCart(prev => {
       return prev.map(item => {
-        if (item.product.id === productId) {
+        if (item.product.id == Number(productId)) {
           const newQty = item.quantity + delta;
           if (newQty <= 0) return null;
           // check stock limit
-          if (newQty > item.product.stock) return item;
+          if (newQty > item.product.stockQty) return item;
           return { ...item, quantity: newQty };
         }
         return item;
@@ -107,7 +102,8 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
   const saveImei = (index: number) => {
     setCart(prev => {
       const copy = [...prev];
-      copy[index] = { ...copy[index], selectedImei: tempImei };
+      // copy[index] = { ...copy[index], selectedImei: tempImei };
+      copy[index] = { ...copy[index] };
       return copy;
     });
     setEditingImeiIndex(null);
@@ -157,21 +153,21 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
     };
 
     // Deduct inventory stock
-    setProducts(prevProducts => {
-      return prevProducts.map(p => {
-        const cartItem = cart.find(item => item.product.id === p.id);
-        if (cartItem) {
-          return {
-            ...p,
-            stock: Math.max(0, p.stock - cartItem.quantity)
-          };
-        }
-        return p;
-      });
-    });
+    // setProducts(prevProducts => {
+    //   return prevProducts.map(p => {
+    //     const cartItem = cart.find(item => item.product.id === p.id);
+    //     if (cartItem) {
+    //       return {
+    //         ...p,
+    //         stock: Math.max(0, p.stock - cartItem.quantity)
+    //       };
+    //     }
+    //     return p;
+    //   });
+    // });
 
     // Add to transaction history
-    setTransactions(prev => [newTx, ...prev]);
+    // setTransactions(prev => [newTx, ...prev]);
     setCheckoutSuccess(newTx);
     setCart([]);
   };
@@ -235,9 +231,9 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProducts.map(p => {
+              {filteredProducts.map((p:Product) => {
                 const inCart = cart.find(item => item.product.id === p.id);
-                const availableStock = p.stock - (inCart?.quantity || 0);
+                const availableStock = p.stockQty - (inCart?.quantity || 0);
 
                 return (
                   <motion.div
@@ -252,7 +248,7 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                   >
                     {/* Stock Indicator tag */}
                     <div className="absolute top-2.5 right-2.5 z-10">
-                      {p.stock === 0 ? (
+                      {p.stockQty === 0 ? (
                         <span className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded-lg text-[10px] font-bold font-mono">
                           {t('pos.outOfStock')}
                         </span>
@@ -271,8 +267,8 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                     <div className="h-32 w-full overflow-hidden rounded-xl p-2 flex items-center justify-center bg-slate-50/50">
                       <img
                         className="h-full object-contain group-hover:scale-105 transition-transform"
-                        src={p.image}
-                        alt={p.name}
+                        src={p.photo}
+                        alt={p.modelName}
                         referrerPolicy="no-referrer"
                       />
                     </div>
@@ -281,18 +277,18 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                     <div className="mt-3 flex-1 flex flex-col justify-between">
                       <div>
                         <h4 className="font-semibold text-slate-800 text-sm tracking-tight truncate">
-                          {p.name}
+                          {p.modelName}
                         </h4>
                         
                         <div className="flex items-center gap-1.5 mt-1">
                           <span className="w-2 h-2 rounded-full inline-block bg-slate-400" style={{
-                            backgroundColor: p.color.toLowerCase() === 'bay blue' ? '#60a5fa' : 
-                                            p.color.toLowerCase() === 'phantom black' ? '#1e293b' :
-                                            p.color.toLowerCase() === 'orange alpine' ? '#f97316' : 
-                                            p.color.toLowerCase() === 'porcelain' ? '#e2e8f0' : '#94a3b8'
+                            backgroundColor: p.color?.toLowerCase() === 'bay blue' ? '#60a5fa' : 
+                                            p.color?.toLowerCase() === 'phantom black' ? '#1e293b' :
+                                            p.color?.toLowerCase() === 'orange alpine' ? '#f97316' : 
+                                            p.color?.toLowerCase() === 'porcelain' ? '#e2e8f0' : '#94a3b8'
                           }} />
                           <span className="text-[11px] text-slate-500 font-medium truncate max-w-[120px]">
-                            {p.specs}
+                            {p.spec}
                           </span>
                         </div>
                       </div>
@@ -354,11 +350,11 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                 <div className="flex justify-between items-start">
                   <div className="flex gap-4">
                     <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl overflow-hidden p-1 flex items-center justify-center flex-shrink-0">
-                      <img className="h-full object-contain" src={item.product.image} alt={item.product.name} referrerPolicy="no-referrer" />
+                      <img className="h-full object-contain" src={item.product.photo} alt={item.product.modelName} referrerPolicy="no-referrer" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-slate-900 text-sm truncate max-w-[160px]">{item.product.name}</h4>
-                      <p className="text-xs text-slate-500 mt-0.5 truncate max-w-[160px]">{item.product.specs}</p>
+                      <h4 className="font-bold text-slate-900 text-sm truncate max-w-[160px]">{item.product.modelName}</h4>
+                      <p className="text-xs text-slate-500 mt-0.5 truncate max-w-[160px]">{item.product.spec}</p>
                     </div>
                   </div>
 
@@ -368,16 +364,16 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                     {/* Quantity selectors */}
                     <div className="flex items-center gap-2 mt-2 bg-slate-50 border border-slate-200/50 p-1 rounded-lg">
                       <button 
-                        onClick={() => updateQuantity(item.product.id, -1)}
+                        onClick={() => updateQuantity(item.product.id.toString(), -1)}
                         className="w-5 h-5 rounded hover:bg-white text-slate-600 flex items-center justify-center transition-colors font-semibold"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
                       <span className="font-mono text-xs font-bold w-5 text-center text-slate-800">{item.quantity}</span>
                       <button 
-                        onClick={() => updateQuantity(item.product.id, 1)}
+                        onClick={() => updateQuantity(item.product.id.toString(), 1)}
                         className="w-5 h-5 rounded hover:bg-white text-slate-600 flex items-center justify-center transition-colors font-semibold"
-                        disabled={item.quantity >= item.product.stock}
+                        disabled={item.quantity >= item.product.stockQty}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -386,7 +382,7 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                 </div>
 
                 {/* IMEI Entry for Mobile phones */}
-                {item.product.imeiRequired && (
+                {/* {item.product?.imeiRequired && (
                   <div className="relative">
                     {editingImeiIndex === index ? (
                       <div className="flex gap-1.5">
@@ -413,7 +409,7 @@ export const POSTerminalView: React.FC<POSTerminalViewProps> = ({
                       </div>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
             ))
           )}

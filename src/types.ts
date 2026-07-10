@@ -1,20 +1,47 @@
 export interface Product {
-  id: string;
-  name: string;
-  brand: string;
-  category: string;
+  id: number;
+  brandId: number,
+  categoryId: number,
+  modelName: string;
+  photo?: string;
+  storage?: string;
+  ram?: string;
+  spec?: string;
+  color?: string;
   price: number;
-  stock: number;
-  image: string;
-  specs: string;
-  color: string;
-  imeiRequired?: boolean;
+  stockQty: number;
+  purchasePrice: number;
+  sellingPrice: number;
+  status: string;
+  createdAt?: Date;
+  updatedAt: Date;
+  category: Category;
+  brand: Brand;
 }
+
+export interface Brand {
+  id: number;
+  name: string;
+  description?: string;
+  logo?: string;
+  status:      string
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  status:      string
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 
 export interface CartItem {
   product: Product;
   quantity: number;
-  selectedImei?: string;
 }
 
 export interface Transaction {
