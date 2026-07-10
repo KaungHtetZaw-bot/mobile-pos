@@ -154,7 +154,7 @@ export const POSTerminalView= () => {
 
     // Add to transaction history
     // setTransactions(prev => [newTx, ...prev]);
-    setCheckoutSuccess(newTx);
+    // setCheckoutSuccess(newTx);
     setCart([]);
   };
 

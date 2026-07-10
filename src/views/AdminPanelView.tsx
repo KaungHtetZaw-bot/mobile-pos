@@ -12,27 +12,18 @@ import {
 import type{ Product, Transaction } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_TRANSACTIONS } from '../data';
 import { useI18n } from '../i18nContext';
+import { useGetProductData } from '../hooks/useProduct';
 
-interface AdminPanelViewProps {
-  products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-  transactions: Transaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-}
-
-export const AdminPanelView: React.FC<AdminPanelViewProps> = ({
-  products,
-  setProducts,
-  setTransactions,
-}) => {
+export const AdminPanelView = () => {
   const { t } = useI18n();
-  const handleResetData = () => {
-    if (window.confirm(t('admin.resetWarning'))) {
-      setProducts(INITIAL_PRODUCTS);
-      setTransactions(INITIAL_TRANSACTIONS);
-      alert(t('admin.resetSuccess'));
-    }
-  };
+  const { data:{products=[]} = {} } = useGetProductData()
+  // const handleResetData = () => {
+  //   if (window.confirm(t('admin.resetWarning'))) {
+  //     setProducts(INITIAL_PRODUCTS);
+  //     setTransactions(INITIAL_TRANSACTIONS);
+  //     alert(t('admin.resetSuccess'));
+  //   }
+  // };
 
   return (
     <motion.div
@@ -60,7 +51,7 @@ export const AdminPanelView: React.FC<AdminPanelViewProps> = ({
           
           <div className="pt-4 flex flex-col gap-3">
             <button 
-              onClick={handleResetData}
+              // onClick={handleResetData}
               className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" /> {t('admin.resetBtn')}

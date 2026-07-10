@@ -21,21 +21,7 @@ import type{ Transaction, Product } from '../types';
 import { useI18n } from '../i18nContext';
 import { useTransations } from '../hooks/useProduct';
 
-interface TransactionsViewProps {
-  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-  products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-  selectedTx: Transaction | null;
-  setSelectedTx: (tx: Transaction | null) => void;
-}
-
-export const TransactionsView: React.FC<TransactionsViewProps> = ({
-  setTransactions,
-  products,
-  setProducts,
-  selectedTx,
-  setSelectedTx,
-}) => {
+export const TransactionsView = () => {
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
@@ -45,7 +31,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     const completed = transactions.filter((t:Transaction) => t.status === 'Completed');
     const refunds = transactions.filter((t:Transaction) => t.status === 'Refunded');
     
-    const revenue = completed.reduce((sum, t:Transaction) => sum + t.total, 0);
+    const revenue = completed.reduce((sum:number, t:Transaction) => sum + t.total, 0);
     const count = completed.length;
     const avgVal = count > 0 ? (revenue / count) : 0;
     
@@ -92,13 +78,13 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       // });
 
       // Update transaction status to Refunded
-      setTransactions(prev => 
-        prev.map(t => t.id === id ? { ...t, status: 'Refunded' } : t)
-      );
+      // setTransactions(prev => 
+      //   prev.map(t => t.id === id ? { ...t, status: 'Refunded' } : t)
+      // );
 
       // Re-set selected preview state
       const updatedTx = { ...targetTx, status: 'Refunded' as const };
-      setSelectedTx(updatedTx);
+      // setSelectedTx(updatedTx);
     }
   };
 
@@ -198,10 +184,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 {filteredTransactions.map((tx:Transaction) => (
                   <tr
                     key={tx.id}
-                    onClick={() => setSelectedTx(tx)}
-                    className={`hover:bg-primary/5 cursor-pointer transition-colors group ${
-                      selectedTx?.id === tx.id ? 'bg-primary/5 border-l-2 border-primary' : ''
-                    }`}
+                    // onClick={() => setSelectedTx(tx)}
+                    // className={`hover:bg-primary/5 cursor-pointer transition-colors group 
+                    //   ${
+                    //   selectedTx?.id === tx.id ? 'bg-primary/5 border-l-2 border-primary' : ''
+                    // }`}
+                    className={`hover:bg-primary/5 cursor-pointer transition-colors group `}
                   >
                     <td className="px-6 py-4 font-mono font-bold text-primary text-sm">#{tx.invoiceNo}</td>
                     
@@ -278,10 +266,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
 
       {/* Invoice Preview Side Panel (Sleek right hand preview drawer / overlay modal) */}
       <AnimatePresence>
-        {selectedTx && (
+        {/* {selectedTx && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:relative lg:inset-auto lg:bg-transparent lg:backdrop-blur-none lg:z-auto lg:p-0">
-            {/* Backdrop element (for closing on click) - only visible on mobile */}
-            <div className="absolute inset-0 lg:hidden" onClick={() => setSelectedTx(null)} />
+            <div className="absolute inset-0 lg:hidden" 
+            onClick={() => setSelectedTx(null)} />
             
             <motion.div
               initial={{ opacity: 0, scale: 0.95, x: 20 }}
@@ -305,14 +293,20 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 </button>
               </header>
 
-              {/* Invoice body details */}
               <div className="flex-1 overflow-y-auto p-5 space-y-6">
                 
-                {/* Header state */}
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-mono text-primary text-base font-bold">{selectedTx.id}</p>
-                    <p className="text-xs text-slate-400 mt-1">{selectedTx.date} • {selectedTx.time}</p>
+                    <p className="text-xs text-slate-400 mt-1">{selectedTx?.createdAt ? new Date(selectedTx.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        }) : "N/A"} • {selectedTx?.createdAt ? new Date(selectedTx.createdAt).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true
+                        }): "N/A"}</p>
                   </div>
                   
                   <span className={`px-2.5 py-1 font-bold rounded-lg text-xs font-mono uppercase tracking-wider ${
@@ -326,7 +320,6 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                   </span>
                 </div>
 
-                {/* Client info */}
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">{t('transactions.customer')}</span>
                   
@@ -341,12 +334,11 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                   </div>
                 </div>
 
-                {/* Order items lists */}
                 <div className="space-y-3">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono block">{t('transactions.totalPurchased')}</span>
                   
                   <div className="divide-y divide-slate-100">
-                    {/* {selectedTx.items.map(i => (
+                    {selectedTx.items.map(i => (
                       <div key={i.product.id} className="py-2.5 flex justify-between text-xs">
                         <div>
                           <p className="font-bold text-slate-800">{i.product.name}</p>
@@ -361,12 +353,11 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                         </div>
                         <span className="font-bold text-slate-900 font-mono">${(i.product.price * i.quantity).toLocaleString()}</span>
                       </div>
-                    ))} */}
+                    ))}
                   </div>
                 </div>
 
-                {/* Calculations summary */}
-                <div className="p-4 bg-slate-900 text-slate-200 rounded-xl space-y-2 font-mono text-xs">
+s                <div className="p-4 bg-slate-900 text-slate-200 rounded-xl space-y-2 font-mono text-xs">
                   <div className="flex justify-between text-slate-400">
                     <span>{t('pos.subtotal')}</span>
                     <span>${selectedTx.subtotal.toLocaleString('en', { minimumFractionDigits: 2 })}</span>
@@ -389,7 +380,6 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
 
               </div>
 
-              {/* Footer action buttons */}
               <footer className="p-5 border-t border-slate-100 bg-slate-50/50 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <button 
@@ -419,7 +409,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               </div>
             </motion.div>
           </div>
-        )}
+        )} */}
       </AnimatePresence>
 
     </motion.div>

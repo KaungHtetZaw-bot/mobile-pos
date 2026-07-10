@@ -24,8 +24,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      console.error('Unauthorized! Redirecting to login...');
+   if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        localStorage.removeItem('token'); // Clear token first!
+        window.location.href = '/login';
+        return new Promise(() => {}); // Break the promise chain completely
     }
     return Promise.reject(error);
   }

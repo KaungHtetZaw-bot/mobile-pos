@@ -34,7 +34,7 @@ export default function App() {
               <Route path="pos" element={<POSTerminalView />} />
               <Route path="inventory" element={<InventoryView />} />
               <Route path="transactions" element={<TransactionsView />} />
-              {/* <Route path="admin" element={<AdminPanelView />} /> */}
+              <Route path="admin" element={<AdminPanelView />} />
             </Route>
           </Route>
         </Routes>
