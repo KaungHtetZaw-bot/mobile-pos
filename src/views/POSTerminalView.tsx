@@ -20,7 +20,7 @@ import { useGetProduct } from '../hooks/useProduct';
 
 export const POSTerminalView= () => {
   const { t } = useI18n();
-  const {  data: { products:rawProducts ={}, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProduct()
+  const {  data: { products:rawProducts, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProduct()
   const [selectedBrand, setSelectedBrand] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -41,6 +41,7 @@ export const POSTerminalView= () => {
 
 
   const filteredProducts = useMemo(() => {
+    console.log(rawProducts)
       const products = rawProducts ?? [];
   
       return products.filter((p: Product) => {
@@ -94,24 +95,9 @@ export const POSTerminalView= () => {
   //   setCart(prev => prev.filter(item => item.product.id !== productId));
   // };
 
-  const startEditingImei = (index: number, current: string) => {
-    setEditingImeiIndex(index);
-    setTempImei(current);
-  };
-
-  const saveImei = (index: number) => {
-    setCart(prev => {
-      const copy = [...prev];
-      // copy[index] = { ...copy[index], selectedImei: tempImei };
-      copy[index] = { ...copy[index] };
-      return copy;
-    });
-    setEditingImeiIndex(null);
-  };
-
   // Cart totals
   const subtotal = useMemo(() => {
-    return cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    return cart.reduce((sum, item) => sum + (item.product.sellingPrice * item.quantity), 0);
   }, [cart]);
 
   const tax = useMemo(() => {
@@ -208,15 +194,15 @@ export const POSTerminalView= () => {
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none scroll-smooth">
             {brands.map(brand => (
               <button
-                key={brand}
-                onClick={() => setSelectedBrand(brand)}
+                key={brand.id}
+                onClick={() => setSelectedBrand(brand.id)}
                 className={`px-5 py-2 rounded-full font-bold text-xs whitespace-nowrap active:scale-95 transition-all cursor-pointer ${
-                  selectedBrand === brand
+                  selectedBrand === brand.id
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50'
                 }`}
               >
-                {brand === 'All Brands' ? t('pos.allCategories') : brand}
+                {brand.name === 'All Brands' ? t('pos.allCategories') : brand.name}
               </button>
             ))}
           </div>
@@ -295,7 +281,7 @@ export const POSTerminalView= () => {
 
                       <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-50">
                         <span className="font-bold text-primary text-base font-mono">
-                          ${p.price.toLocaleString()}
+                          ${p.sellingPrice.toLocaleString()}
                         </span>
                         
                         <span className={`p-1.5 rounded-lg transition-colors ${
@@ -359,7 +345,7 @@ export const POSTerminalView= () => {
                   </div>
 
                   <div className="text-right">
-                    <div className="font-bold text-slate-900 font-mono text-sm">${(item.product.price * item.quantity).toLocaleString()}</div>
+                    <div className="font-bold text-slate-900 font-mono text-sm">${(item.product.sellingPrice * item.quantity).toLocaleString()}</div>
                     
                     {/* Quantity selectors */}
                     <div className="flex items-center gap-2 mt-2 bg-slate-50 border border-slate-200/50 p-1 rounded-lg">
@@ -422,11 +408,6 @@ export const POSTerminalView= () => {
               <span>{t('pos.subtotal')}</span>
               <span className="font-mono">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
-            
-            <div className="flex justify-between text-slate-500 text-sm">
-              <span>{t('pos.tax')}</span>
-              <span className="font-mono">${tax.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-            </div>
 
             {discount > 0 && (
               <div className="flex justify-between text-emerald-600 text-sm">
@@ -440,28 +421,6 @@ export const POSTerminalView= () => {
               <span className="text-2xl font-black text-primary font-mono">
                 ${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
-            </div>
-          </div>
-
-          {/* Customer Details switchers (standard mock settings) */}
-          <div className="grid grid-cols-2 gap-3 pb-1">
-            <div className="bg-white px-3 py-1.5 rounded-lg border border-slate-100 text-[10px]">
-              <span className="text-slate-400 block font-medium uppercase tracking-wider">{t('pos.customerName')}</span>
-              <input 
-                type="text" 
-                value={customerName} 
-                onChange={e => setCustomerName(e.target.value)}
-                className="font-bold text-slate-800 w-full p-0 border-0 focus:ring-0 text-[11px]" 
-              />
-            </div>
-            <div className="bg-white px-3 py-1.5 rounded-lg border border-slate-100 text-[10px]">
-              <span className="text-slate-400 block font-medium uppercase tracking-wider">{t('pos.customerEmail')}</span>
-              <input 
-                type="text" 
-                value={customerEmail} 
-                onChange={e => setCustomerEmail(e.target.value)}
-                className="font-bold text-slate-800 w-full p-0 border-0 focus:ring-0 text-[11px]" 
-              />
             </div>
           </div>
 
