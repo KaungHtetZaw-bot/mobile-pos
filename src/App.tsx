@@ -12,7 +12,14 @@ import { I18nProvider } from './i18nContext';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
 function ProtectedRoute() {
   const token = localStorage.getItem("token");
 
