@@ -45,7 +45,7 @@ export interface CartItem {
 }
 
 export interface Transaction {
-  id: string; // Or number, depending on your routing setup
+  id?: string; // Or number, depending on your routing setup
   invoiceNo: string;
   customerName: string;
   customerEmail: string;

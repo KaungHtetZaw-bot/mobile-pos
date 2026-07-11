@@ -3,6 +3,8 @@ import { ArrowRight, Calendar, TrendingUp } from 'lucide-react';
 import { useI18n } from '../i18nContext';
 import { Link } from 'react-router-dom';
 import { useInitData } from '../hooks/useProduct';
+import BarGraph from '../components/Test';
+import AreaChartExample from '../components/Test';
 
 export const DashboardView = () => {
   const { t } = useI18n();
@@ -130,45 +132,7 @@ export const DashboardView = () => {
           </div>
 
           {/* High-quality responsive SVG Line Chart with gradient */}
-          <div className="w-full relative">
-            <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 200" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
-                  <stop offset="0%" stopColor="rgba(15, 23, 42, 0.15)" />
-                  <stop offset="100%" stopColor="rgba(15, 23, 42, 0)" />
-                </linearGradient>
-                <linearGradient id="volumeGradient" x1="0%" x2="0%" y1="0%" y2="100%">
-                  <stop offset="0%" stopColor="rgba(148, 163, 184, 0.08)" />
-                  <stop offset="100%" stopColor="rgba(148, 163, 184, 0)" />
-                </linearGradient>
-              </defs>
-              
-              {/* Grid Lines */}
-              <line x1="0" y1="0" x2="1000" y2="0" stroke="#f1f5f9" strokeWidth="1" />
-              <line x1="0" y1="50" x2="1000" y2="50" stroke="#f1f5f9" strokeWidth="1" />
-              <line x1="0" y1="100" x2="1000" y2="100" stroke="#f1f5f9" strokeWidth="1" />
-              <line x1="0" y1="150" x2="1000" y2="150" stroke="#f1f5f9" strokeWidth="1" />
-              <line x1="0" y1="200" x2="1000" y2="200" stroke="#f1f5f9" strokeWidth="1" />
-
-              {/* Volume Area (Light Slate) */}
-              <path d="M0,190 Q150,175 300,120 T600,140 T800,110 T1000,130 L1000,200 L0,200 Z" fill="url(#volumeGradient)" />
-              <path d="M0,190 Q150,175 300,120 T600,140 T800,110 T1000,130" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" />
-
-              {/* Revenue Area (Primary Slate-900) */}
-              <path d="M0,180 Q150,150 300,90 T600,110 T800,50 T1000,60 L1000,200 L0,200 Z" fill="url(#chartGradient)" />
-              <path d="M0,180 Q150,150 300,90 T600,110 T800,50 T1000,60" fill="none" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-
-            {/* Hourly Labels */}
-            <div className="flex justify-between mt-4 text-xs text-slate-400 font-medium px-1 font-mono">
-              <span>08:00 AM</span>
-              <span>11:00 AM</span>
-              <span>02:00 PM</span>
-              <span>05:00 PM</span>
-              <span>08:00 PM</span>
-              <span>11:00 PM</span>
-            </div>
-          </div>
+          <AreaChartExample />
         </div>
 
         {/* Top Selling Products List */}

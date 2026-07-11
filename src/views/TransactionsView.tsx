@@ -20,32 +20,33 @@ import {
 import type{ Transaction, Product } from '../types';
 import { useI18n } from '../i18nContext';
 import { useTransations } from '../hooks/useProduct';
+import { dateTimeFormater } from '../utils/dateTimeFormater';
 
 export const TransactionsView = () => {
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
-  const { data: transactions= [] } = useTransations()
+  const { data: transactions= [], isLoading } = useTransations()
   // Compute stats based on current list
   const stats = useMemo(() => {
-    const completed = transactions.filter((t:Transaction) => t.status === 'Completed');
-    const refunds = transactions.filter((t:Transaction) => t.status === 'Refunded');
+    const completed = transactions?.data?.filter((t:Transaction) => t.status === 'Completed');
+    const refunds = transactions?.data?.filter((t:Transaction) => t.status === 'Refunded');
     
-    const revenue = completed.reduce((sum:number, t:Transaction) => sum + t.total, 0);
-    const count = completed.length;
+    const revenue = completed?.reduce((sum:number, t:Transaction) => sum + t.total, 0);
+    const count = completed?.length;
     const avgVal = count > 0 ? (revenue / count) : 0;
     
     return {
       revenue,
       count,
       avgVal,
-      refundCount: refunds.length
+      refundCount: refunds?.length
     };
   }, [transactions]);
 
   // Filters based on search query
   const filteredTransactions = useMemo(() => {
-  const newTransactions = transactions ?? [];
+  const newTransactions = transactions?.data ?? [];
   return newTransactions.filter((t: Transaction) => {
     // Convert t.id to a string safely before calling string methods
     const transactionId = String(t.id).toLowerCase();
@@ -87,6 +88,8 @@ export const TransactionsView = () => {
       // setSelectedTx(updatedTx);
     }
   };
+
+  if(isLoading) return "loading"
 
   return (
     <motion.div
@@ -195,18 +198,10 @@ export const TransactionsView = () => {
                     
                     <td className="px-6 py-4">
                       <p className="text-slate-800 text-xs font-semibold">
-                        {tx?.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        }) : "N/A"}
+                        { dateTimeFormater(tx?.createdAt, 'date') }
                       </p>
                       <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-                        {tx?.createdAt ? new Date(tx.createdAt).toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: true
-                        }): "N/A"}
+                        { dateTimeFormater(tx?.createdAt, 'time') }
                       </p>
                     </td>
 

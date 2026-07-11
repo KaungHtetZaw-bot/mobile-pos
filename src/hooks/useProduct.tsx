@@ -25,6 +25,7 @@ export const useInitData = () => {
       });
       return response.data;
     },
+    staleTime: 60000,
   });
 };
 
@@ -39,6 +40,7 @@ export const useGetProductData = () => {
       ]);
       return { brands, categories, products };
     },
+    staleTime: 60000,
   });
 };
 export const useTransations = () => {
@@ -48,5 +50,6 @@ export const useTransations = () => {
       const res = await api.get('/orders')
       return res.data;
     },
+    staleTime: 60000,
   });
 };
