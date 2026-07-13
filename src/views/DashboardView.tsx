@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, Calendar, TrendingUp } from 'lucide-react';
 import { useI18n } from '../i18nContext';
 import { Link } from 'react-router-dom';
-import { useInitData } from '../hooks/useProduct';
+import { useInitData } from '../hooks/useProductQueries';
 import BarGraph from '../components/Test';
 import AreaChartExample from '../components/Test';
 

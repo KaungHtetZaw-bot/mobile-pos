@@ -17,16 +17,17 @@ import {
   Trash2,
   ListFilter
 } from 'lucide-react';
-import type{ Transaction, Product } from '../types';
+import type{ Transaction } from '../types';
 import { useI18n } from '../i18nContext';
-import { useTransations } from '../hooks/useProduct';
 import { dateTimeFormater } from '../utils/dateTimeFormater';
+import { useOrders } from '../hooks/useOrderQueries';
 
 export const TransactionsView = () => {
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
-  const { data: transactions= [], isLoading } = useTransations()
+  // const { data: transactions= [], isLoading } = useTransations()
+  const { data: transactions, isLoading } = useOrders({})
   // Compute stats based on current list
   const stats = useMemo(() => {
     const completed = transactions?.data?.filter((t:Transaction) => t.status === 'Completed');

@@ -11,31 +11,29 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useI18n } from '../i18nContext';
-import { useGetProductData } from '../hooks/useProduct';
-import type { Brand, Category, Product } from '../types';
+import { useGetProductData } from '../hooks/useProductQueries';
+import type { Product } from '../types';
 
 export const InventoryView= () => {
   const { t } = useI18n();
-  const {  data: { products:rawProducts, brands:rawBrands, categories:rawCategories } = {}, isLoading } = useGetProductData()
+  const {  data, isLoading } = useGetProductData()
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [stockFilter, setStockFilter] = useState<'all' | 'instock' | 'low' | 'out'>('all');
   const [selectedBrand, setSelectedBrand] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState(0)
-
   const brands = useMemo(() => {
     const allBrands = { id: 0, name: "All Brands", status: "ACTIVE" }
-    const list = rawBrands ?? []
+    const list = data?.brands ?? []
     return [allBrands, ...list];
-  }, [rawBrands]);
+  }, [data]);
 
   const categories = useMemo(() => {
     const allCategories = { id: 0, name: "All Categories", status: "ACTIVE" };
-    const list = rawCategories ?? [];
+    const list = data.categories ?? [];
     return [allCategories, ...list];
-  }, [rawCategories]);
+  }, [data]);
 
-  // Add Product Form states
   const [newProductName, setNewProductName] = useState('');
   const [newProductBrand, setNewProductBrand] = useState('Apple');
   const [newProductCategory, setNewProductCategory] = useState('Smartphones');
@@ -61,7 +59,8 @@ export const InventoryView= () => {
   // };
 
   const filterProduct = useMemo(() => {
-    const products = rawProducts ?? [];
+    if(!data.products) return []
+    const products = data.products?.data ?? [];
 
     return products.filter((p: Product) => {
       const matchesBrand = Number(selectedBrand) === 0 || p.brandId === Number(selectedBrand);
@@ -70,7 +69,7 @@ export const InventoryView= () => {
 
       return matchesBrand && matchesCategory;
     });
-  }, [selectedCategory, selectedBrand, rawProducts]);
+  }, [selectedCategory, selectedBrand, data]);
 
   return (
     <motion.div

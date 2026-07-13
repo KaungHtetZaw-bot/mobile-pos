@@ -9,16 +9,9 @@ import { RegisterView } from './views/RegisterView';
 
 import { Layout } from './layout/Layout';
 import { I18nProvider } from './i18nContext';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './api/queryClient';
 
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
 
 function ProtectedRoute() {
   const token = localStorage.getItem("token");

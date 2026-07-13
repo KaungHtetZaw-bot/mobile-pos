@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import type { Product, CartItem, Transaction } from '../types';
 import { useI18n } from '../i18nContext';
-import { useGetProductData } from '../hooks/useProduct';
+import { useGetProductData } from '../hooks/useProductQueries';
 
 export const POSTerminalView = () => {
   const { t } = useI18n();
@@ -25,14 +25,9 @@ export const POSTerminalView = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [checkoutSuccess, setCheckoutSuccess] = useState<Transaction | null>(null);
-  // const [editingImeiIndex, setEditingImeiIndex] = useState<number | null>(null);
-  // const [tempImei, setTempImei] = useState<string>('');
-
-  // Customer form details
   const [customerName] = useState<string>('Sarah Jenkins');
   const [customerEmail] = useState<string>('sarah.j@gmail.com');
 
-  // Brands extracted from product list
   const brands = useMemo(() => {
       const allBrands = { id: 0, name: "All Brands", status: "ACTIVE" }
       const list = rawBrands ?? []
@@ -54,7 +49,6 @@ export const POSTerminalView = () => {
       });
     }, [searchQuery, selectedBrand, rawProducts]);
 
-  // Cart operations
   const addToCart = (product: Product) => {
     if (product.stockQty === 0) return;
 
@@ -71,7 +65,6 @@ export const POSTerminalView = () => {
       return [...prev, { 
         product, 
         quantity: 1, 
-        // selectedImei: product.imeiRequired ? `IMEI-${Math.floor(100000000000000 + Math.random() * 900000000000000)}` : undefined
       }];
     });
   };
@@ -89,18 +82,6 @@ export const POSTerminalView = () => {
       }).filter(Boolean) as CartItem[];
     });
   };
-
-  // const startEditingImei = (index: number, currentImei: string) => {
-  //   setEditingImeiIndex(index);
-  //   setTempImei(currentImei);
-  // };
-
-  // const saveImei = (index: number) => {
-  //   setCart(prev => prev.map((item, i) => i === index ? { ...item, selectedImei: tempImei } : item));
-  //   setEditingImeiIndex(null);
-  // };
-
-  // Cart totals
   const subtotal = useMemo(() => {
     return cart.reduce((sum, item) => sum + (item.product.sellingPrice * item.quantity), 0);
   }, [cart]);
@@ -144,10 +125,8 @@ export const POSTerminalView = () => {
       transition={{ duration: 0.25 }}
       className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-140px)] h-auto lg:overflow-hidden overflow-visible"
     >
-      {/* Left side: Product Catalog */}
       <div className="flex-1 flex flex-col min-w-0 bg-white border border-slate-100 rounded-2xl p-6 lg:overflow-hidden overflow-visible">
         
-        {/* Brand tabs and search */}
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="font-sans text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -185,7 +164,6 @@ export const POSTerminalView = () => {
           </div>
         </div>
 
-        {/* No-Image Clean Product Grid */}
         <div className="lg:flex-1 lg:overflow-y-auto overflow-visible pr-1 select-none">
           {filteredProducts.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center p-8 text-slate-400">
@@ -197,7 +175,6 @@ export const POSTerminalView = () => {
               {filteredProducts.map((p: Product) => {
                 const inCart = cart.find(item => item.product.id === p.id);
                 const availableStock = p.stockQty - (inCart?.quantity || 0);
-                const initial = p.modelName.charAt(0);
 
                 return (
                   <motion.div
@@ -210,10 +187,6 @@ export const POSTerminalView = () => {
                         : 'border-slate-100 hover:border-primary/20 hover:shadow-sm active:scale-[0.99]'
                     }`}
                   >
-                    {/* Modern Text-Avatar Placeholder instead of Image */}
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center font-bold text-slate-500 group-hover:bg-primary/5 group-hover:text-primary transition-colors text-base shrink-0">
-                      {initial}
-                    </div>
 
                     <div className="flex-1 min-w-0 pr-12">
                       <h4 className="font-bold text-slate-800 text-sm tracking-tight truncate">

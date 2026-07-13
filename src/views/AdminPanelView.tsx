@@ -12,18 +12,11 @@ import {
 import type{ Product, Transaction } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_TRANSACTIONS } from '../data';
 import { useI18n } from '../i18nContext';
-import { useGetProductData } from '../hooks/useProduct';
+import { useGetProductData } from '../hooks/useProductQueries';
 
 export const AdminPanelView = () => {
   const { t } = useI18n();
   const { data:{products=[]} = {} } = useGetProductData()
-  // const handleResetData = () => {
-  //   if (window.confirm(t('admin.resetWarning'))) {
-  //     setProducts(INITIAL_PRODUCTS);
-  //     setTransactions(INITIAL_TRANSACTIONS);
-  //     alert(t('admin.resetSuccess'));
-  //   }
-  // };
 
   return (
     <motion.div
